@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | NPIPNG</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid full-screen" id="AdminLogin">
+        <div class="container-fluid text-center">
+            <h3 class="display-3 login-title text-white mb-4">Academic Administration Portal</h3>
+            <div class="row justify-content-center">
+                <div class="col-xl-3 col-lg-4 col-md-8 col-sm-9 col-xs-12 text-center">
+                    <h1 class="display-4 text-white">Sign In</h1>
+                    <hr>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <input type="text" placeholder="Username/Email (e.g. registrar)" id="loguser" class="form-control" required>
+                            <br>
+                            <input type="password" placeholder="Password" id="logpassword" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-block btn-primary">Go&nbsp;<i class="bi-door-open"></i></button>
+                        </div>
+                    </form>
+                    <p id="loginAlertMessage" class="text-white mt-3"></p>
+                </div>
+            </div>			
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+</body>
+</html>

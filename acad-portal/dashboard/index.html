@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Academic Portal</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+    <link rel="shortcut icon" type="icon/ico" href="../../assets/favicon/favicon.ico">
+</head>
+<body>
+
+    <!-- DYNAMIC BANNER (Will use #StudentDash or #InstructorDash) -->
+    <div class="jumbotron jumbotron-fluid" id="StudentDash">
+        <div class="container">
+            <h1 class="display-4 text-white">My Dashboard</h1>
+            <p class="lead text-white">Academic Portal</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html">
+            <img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid">
+        </a>
+        <div class="collapse navbar-collapse show" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto" id="nav-links">
+                <li class="nav-item active">
+                    <a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;&nbsp;Dashboard</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-book"></i>&nbsp;My Course</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="../course/index.html">All Courses</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#"><i class="bi-person-circle"></i>&nbsp;My Account</a>
+                        <a class="dropdown-item" href="../gradebook/index.html"><i class="bi-book-half"></i>&nbsp;My Gradebook</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" id="LogoutForm">
+                <button class="btn btn-outline-primary btn-sm my-2 my-sm-0" type="submit">Sign Out&nbsp;<i class="bi-box-arrow-right"></i></button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="container body">
+        <div class="row justify-content-center" id="dashboard-content">
+            <!-- Content loaded via JS -->
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer mt-5">
+        <p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG All Rights Reserved.</p>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            
+            const role = localStorage.getItem('npipng_role');
+            const userId = localStorage.getItem('npipng_id');
+            const userName = localStorage.getItem('npipng_name') || 'User';
+
+            if (!role) {
+                window.location.href = '../authentication/index.html';
+                return;
+            }
+
+            $('.user-name-placeholder').text(userName);
+
+            loadNPIPNGData(function(data) {
+                const container = $('#dashboard-content');
+
+                if (role === 'STUDENT') {
+                    const enrollments = DB.getEnrollments(userId);
+                    let html = '<div class="col-md-9 col-sm-8 col-xs-12"><div class="row">';
+                    
+                    if (enrollments.length === 0) {
+                        html += '<div class="alert alert-info w-100">You are not enrolled in any units.</div>';
+                    } else {
+                        enrollments.forEach(enrol => {
+                            const unitId = parseInt(enrol.offerID.split('.')[0]);
+                            const unit = DB.getUnit(unitId);
+                            if(unit) {
+                                html += `
+                                    <div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+                                        <div class="overlay-container">
+                                            <img src="../../assets/images/${unit.coverImg}" class="img-fluid overlay-image" style="height:150px; object-fit:cover;">
+                                            <div class="overlay-text">
+                                                <h4 class="overlay-header">${unit.unitName}</h4>
+                                                <small class="text-muted">${unit.unitCode}</small><hr>
+                                                <a href="../unit/index.html?id=${unit.unitID}" class="btn btn-sm btn-block btn-primary">See More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+                    html += '</div></div>';
+                    // Add Notices sidebar here if needed
+                    container.html(html);
+
+                } else if (role === 'INSTRUCTOR') {
+                    const units = data.units.filter(u => u.lectAssigned == userId);
+                    let html = '<div class="col-md-12"><div class="row">';
+                    
+                    if (units.length === 0) {
+                        html += '<div class="alert alert-info w-100">No units assigned.</div>';
+                    } else {
+                        units.forEach(unit => {
+                            html += `
+                                <div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+                                    <div class="overlay-container">
+                                        <img src="../../assets/images/${unit.coverImg}" class="img-fluid overlay-image" style="height:150px; object-fit:cover;">
+                                        <div class="overlay-text">
+                                            <h4 class="overlay-header">${unit.unitName}</h4>
+                                            <small class="text-muted">${unit.unitCode}</small><hr>
+                                            <a href="../unit/index.html?id=${unit.unitID}" class="btn btn-sm btn-block btn-primary">Manage Unit</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    html += '</div></div>';
+                    container.html(html);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

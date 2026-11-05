@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile | Admin Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="RegDash">
+        <div class="container">
+            <h1 class="display-4 text-white">Registrar's Office</h1>
+            <p class="lead text-white">Student Management Portal</p>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-people"></i>&nbsp;Manage Students</a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="../records/index.html">Student Registry</a></div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="#">My Account</a></div>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" id="LogoutForm">
+                <button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-sm-12">
+                <span class="float-right"><a href="../records/index.html" class="btn btn-sm btn-outline-dark">See All Records <i class="bi-chevron-right"></i></a></span>
+                <h3><i class="bi-person"></i>&nbsp;<span id="student-name">Loading...</span></h3>
+                <small class="text-muted">Academic Administration / Manage Students / eProfile</small>
+                <hr>
+            </div>
+
+            <!-- TABS -->
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link active" data-toggle="pill" href="#tab-info" role="tab"><i class="bi-file-earmark-text"></i>&nbsp;Student Details</a>
+                    <a class="nav-link" data-toggle="pill" href="#tab-units" role="tab"><i class="bi-archive"></i>&nbsp;Enrollment Archive</a>
+                    <a class="nav-link" data-toggle="pill" href="#tab-gradebook" role="tab"><i class="bi-book"></i>&nbsp;Gradebook</a>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT -->
+            <div class="col-lg-9 col-md-8 col-sm-12">
+                <div class="tab-content" id="v-pills-tabContent">
+                    
+                    <div class="tab-pane fade show active" id="tab-info" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-4"><img src="../../assets/images/student/default.jpg" class="img-fluid" alt="Profile"></div>
+                            <div class="col-md-8">
+                                <dl class="row" id="info-list"></dl>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-units" role="tabpanel">
+                        <div id="enrolment-list"></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-gradebook" role="tabpanel">
+                        <div id="gradebook-content"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>	
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            const studentId = new URLSearchParams(window.location.search).get('id');
+            if(!studentId) { window.location.href = '../records/index.html'; return; }
+
+            loadNPIPNGData(function(data) {
+                const student = DB.getStudent(studentId);
+                if(!student) { alert("Student not found"); return; }
+                const course = DB.getCourse(student.courseTaken);
+
+                $('#student-name').text(`${student.firstname} ${student.lastname}`);
+
+                // --- TAB 1: INFO ---
+                $('#info-list').html(`
+                    <h4 class="col-sm-12">Personal Info</h4>
+                    <dt class="col-sm-4">Student ID</dt><dd class="col-sm-8">${student.studentID}</dd>
+                    <dt class="col-sm-4">Full Name</dt><dd class="col-sm-8">${student.firstname} ${student.middlename} ${student.lastname}</dd>
+                    <dt class="col-sm-4">Email</dt><dd class="col-sm-8">${student.email}</dd>
+                    <dt class="col-sm-4">Gender</dt><dd class="col-sm-8">${student.gender}</dd>
+                    <dt class="col-sm-4">Date of Birth</dt><dd class="col-sm-8">${Calc.formatDateOnly(student.dob)}</dd>
+                    <dt class="col-sm-4">Address</dt><dd class="col-sm-8">${student.homeAddress}, ${student.homeProvince}</dd>
+                    <h4 class="col-sm-12 mt-3">Academics</h4>
+                    <dt class="col-sm-4">Course</dt><dd class="col-sm-8">${course ? course.courseName : 'N/A'}</dd>
+                    <dt class="col-sm-4">Year Level</dt><dd class="col-sm-8">${student.yearLevel}</dd>
+                    <dt class="col-sm-4">GPA</dt><dd class="col-sm-8">${student.GPA}</dd>
+                `);
+
+                // --- TAB 2: ENROLMENTS ---
+                const enrolments = DB.getEnrollments(studentId);
+                let enrolHtml = `<table class="table table-hover table-sm"><thead><tr><th>Unit Code</th><th>Name</th><th>Status</th></tr></thead><tbody>`;
+                if(enrolments.length === 0) {
+                    enrolHtml += `<tr><td colspan="3">No enrolments found.</td></tr>`;
+                } else {
+                    enrolments.forEach(e => {
+                        const unitId = parseInt(e.offerID.split('.')[0]);
+                        const unit = DB.getUnit(unitId);
+                        if(unit) {
+                            let badge = e.enrollStatus == 1 ? '<span class="badge badge-success">Enrolled</span>' : '<span class="badge badge-warning">Unenrolled</span>';
+                            enrolHtml += `<tr><td>${unit.unitCode}</td><td>${unit.unitName}</td><td>${badge}</td></tr>`;
+                        }
+                    });
+                }
+                enrolHtml += `</tbody></table>`;
+                $('#enrolment-list').html(enrolHtml);
+
+                // --- TAB 3: GRADEBOOK ---
+                let totalPoints = 0;
+                let totalUnits = 0;
+                let gradeHtml = `<h4 class="mb-3">Academic Transcript (Year ${student.yearLevel})</h4>`;
+                gradeHtml += `<table class="table table-sm table-hover"><thead><tr class="bg-dark text-white"><th>Unit Code</th><th>Score</th><th>Grade</th><th>Points</th></tr></thead><tbody>`;
+                
+                enrolments.forEach(e => {
+                    const unitId = parseInt(e.offerID.split('.')[0]);
+                    const unit = DB.getUnit(unitId);
+                    if(unit) {
+                        const gradePts = Calc.getGradePoints(e.grade);
+                        totalPoints += gradePts;
+                        totalUnits++;
+                        gradeHtml += `<tr><td>${unit.unitCode}</td><td>${e.score}</td><td>${e.grade}</td><td>${gradePts}</td></tr>`;
+                    }
+                });
+                
+                const cGPA = totalUnits > 0 ? (totalPoints / totalUnits).toFixed(2) : '0.00';
+                gradeHtml += `</tbody><tfoot><tr><th colspan="3" class="text-right">Cumulative GPA</th><th>${cGPA}</th></tr></tfoot></table>`;
+                $('#gradebook-content').html(gradeHtml);
+            });
+        });
+    </script>
+</body>
+</html>

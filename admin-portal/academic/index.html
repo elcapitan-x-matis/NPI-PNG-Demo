@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academics Registry | Admin Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="AcadDash">
+        <div class="container"><h1 class="display-4 text-white">Academic Administration</h1><p class="lead text-white">Student Management Portal</p></div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-bank"></i>&nbsp;Manage Academics</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item active" href="index.html">Academics Registry</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="#">My Account</a></div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <h3 id="page-title">Academics Registry</h3>
+                <small class="text-muted" id="breadcrumb">Academic Administration / Manage Academics</small>
+                <hr>
+            </div>
+            <div class="col-md-12" id="main-content">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const deptId = urlParams.get('dept');
+            const courseId = urlParams.get('course');
+            const unitId = urlParams.get('unit');
+
+            loadNPIPNGData(function(data) {
+                if (deptId) {
+                    renderDepartment(data, deptId);
+                } else if (courseId) {
+                    renderCourse(data, courseId);
+                } else if (unitId) {
+                    renderUnit(data, unitId);
+                } else {
+                    renderRegistry(data);
+                }
+            });
+
+            // --- VIEW 1: ACADEMICS REGISTRY (ALL DEPARTMENTS) ---
+            function renderRegistry(data) {
+                let html = `<div class="row">`;
+                data.departments.forEach(dept => {
+                    html += `
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <a href="?dept=${dept.deptID}">
+                                        <h5><i class="bi-chevron-right"></i>&nbsp;${dept.deptName}</h5>
+                                    </a>
+                                    <hr>
+                                    <article class="text-muted">${dept.description}</article>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                $('#main-content').html(html);
+            }
+
+            // --- VIEW 2: SINGLE DEPARTMENT ---
+            function renderDepartment(data, id) {
+                const dept = data.departments.find(d => d.deptID == id);
+                if(!dept) { $('#main-content').html('<div class="alert alert-danger">Department not found</div>'); return; }
+                
+                $('#page-title').text(dept.deptName);
+                $('#breadcrumb').text(`Academic Administration / Manage Academics / Departments / ${dept.deptCode}`);
+
+                const deptCourses = data.courses.filter(c => c.underDept == id);
+                let coursesHtml = '';
+                deptCourses.forEach(c => {
+                    coursesHtml += `
+                        <tr>
+                            <td>${c.courseCode}</td>
+                            <td><a href="?course=${c.courseID}">${c.courseName}</a></td>
+                        </tr>
+                    `;
+                });
+
+                let html = `
+                    <div class="col-md-6 col-sm-12">	
+                        <span class="float-right">
+                            <button class="btn btn-sm btn-primary" onclick="alert('Edit mode not available in static demo')"><i class="bi-pencil-square"></i>&nbsp;Edit</button>
+                        </span>
+                        <h5><i class="bi-info-circle-fill"></i>&nbsp;Information</h5><br>
+                        <dl class="row">
+                            <dd class="col-md-12 text-center" style="padding: 20px"><img src="../../assets/images/${dept.coverImg}" class="img-fluid"></dd>
+                            <dt class="col-md-3 col-sm-4 col-xs-12">Code</dt>
+                            <dd class="col-md-9 col-sm-8 col-xs-12">${dept.deptCode}</dd>
+                            <dt class="col-md-3 col-sm-4 col-xs-12">Description</dt>
+                            <dd class="col-md-9 col-sm-8 col-xs-12">${dept.description}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <h5><i class="bi-book"></i>&nbsp;Courses</h5><br>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead><tr><th>Code</th><th>Name</th></tr></thead>
+                                <tbody>${coursesHtml || '<tr><td colspan="2">No courses</td></tr>'}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                $('#main-content').html(html);
+            }
+
+            // --- VIEW 3: SINGLE COURSE ---
+            function renderCourse(data, id) {
+                const course = DB.getCourse(id);
+                if(!course) { $('#main-content').html('<div class="alert alert-danger">Course not found</div>'); return; }
+                const dept = data.departments.find(d => d.deptID == course.underDept);
+                
+                $('#page-title').text(course.courseName);
+                $('#breadcrumb').text(`Academic Administration / Manage Academics / ${dept.deptCode} Courses / ${course.courseCode}`);
+
+                const units = data.units.filter(u => u.underCourse == id);
+                let unitsHtml = '';
+                units.forEach(u => {
+                    const offer = data.offerings.find(o => o.unitID == u.unitID) || {term: 1, semester: 1, year: 1};
+                    unitsHtml += `
+                        <tr>
+                            <td>${u.unitCode}</td>
+                            <td><a href="?unit=${u.unitID}">${u.unitName}</a></td>
+                            <td>Term ${offer.term}</td>
+                            <td>Semester ${offer.semester}</td>
+                            <td>Year ${offer.year}</td>
+                        </tr>
+                    `;
+                });
+
+                let html = `
+                    <div class="col-md-6 col-sm-12">	
+                        <span class="float-right">
+                            <button class="btn btn-sm btn-primary" onclick="alert('Edit mode not available in static demo')"><i class="bi-pencil-square"></i>&nbsp;Edit</button>
+                        </span>
+                        <h5><i class="bi-info-circle-fill"></i>&nbsp;Information</h5><br>
+                        <dl class="row">
+                            <dd class="col-md-12 text-center" style="padding: 20px"><img src="../../assets/images/${course.coverImg}" class="img-fluid"></dd>
+                            <dt class="col-md-3 col-sm-4 col-xs-12">Code</dt>
+                            <dd class="col-md-9 col-sm-8 col-xs-12">${course.courseCode}</dd>
+                            <dt class="col-md-3 col-sm-4 col-xs-12">Years of Study</dt>
+                            <dd class="col-md-9 col-sm-8 col-xs-12">${course.duration} years</dd>
+                            <dt class="col-md-3 col-sm-4 col-xs-12">Department</dt>
+                            <dd class="col-md-9 col-sm-8 col-xs-12">${dept.deptName}</dd>
+                            <dt class="col-md-3 col-sm-4 col-xs-12">Description</dt>
+                            <dd class="col-md-9 col-sm-8 col-xs-12">${course.description}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <h5><i class="bi-book-half"></i>&nbsp;Units</h5><br>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead><tr><th>Code</th><th>Name</th><th>Term</th><th>Sem</th><th>Year</th></tr></thead>
+                                <tbody>${unitsHtml || '<tr><td colspan="5">No units</td></tr>'}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                $('#main-content').html(html);
+            }
+
+            // --- VIEW 4: SINGLE UNIT ---
+            function renderUnit(data, id) {
+                const unit = DB.getUnit(id);
+                if(!unit) { $('#main-content').html('<div class="alert alert-danger">Unit not found</div>'); return; }
+                const course = DB.getCourse(unit.underCourse);
+                const dept = data.departments.find(d => d.deptID == course.underDept);
+                const staff = DB.getStaff(unit.lectAssigned);
+                const offer = data.offerings.find(o => o.unitID == unit.unitID) || {term: 1, semester: 1, year: 1};
+
+                $('#page-title').text(unit.unitName);
+                $('#breadcrumb').text(`Academic Administration / Manage Academics / ${course.courseCode} Units / ${unit.unitCode}`);
+
+                let html = `
+                    <div class="col-sm-12">	
+                        <span class="float-right">
+                            <button class="btn btn-sm btn-primary" onclick="alert('Edit mode not available in static demo')"><i class="bi-pencil-square"></i>&nbsp;Edit</button>
+                        </span>
+                        <h5><i class="bi-info-circle-fill"></i>&nbsp;Information</h5><br>
+                        <div class="row">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <img src="../../assets/images/${unit.coverImg}" class="img-fluid">
+                            </div>
+                            <div class="col-md-8 col-sm-6 col-xs-12">
+                                <dl class="row">
+                                    <dt class="col-md-4 col-sm-5">Code</dt>
+                                    <dd class="col-md-8 col-sm-7">${unit.unitCode}</dd>
+                                    <dt class="col-md-4 col-sm-5">Department & Course</dt>
+                                    <dd class="col-md-8 col-sm-7">${dept.deptName} <i class="bi-chevron-right"></i> ${course.courseName}</dd>
+                                    <dt class="col-md-4 col-sm-5">Credit Points</dt>
+                                    <dd class="col-md-8 col-sm-7">${unit.creditPoints}</dd>
+                                    <dt class="col-md-4 col-sm-5">Score Awarded</dt>
+                                    <dd class="col-md-8 col-sm-7">${unit.totalPoints}</dd>
+                                    <dt class="col-md-4 col-sm-5">Lecturer/Instructor</dt>
+                                    <dd class="col-md-8 col-sm-7">${staff ? staff.firstname + ' ' + staff.lastname : 'Not assigned'}</dd>
+                                    <dt class="col-md-4 col-sm-5">Term Offered</dt>
+                                    <dd class="col-md-8 col-sm-7">Term ${offer.term}</dd>
+                                    <dt class="col-md-4 col-sm-5">Semester Offered</dt>
+                                    <dd class="col-md-8 col-sm-7">Semester ${offer.semester}</dd>
+                                    <dt class="col-md-4 col-sm-5">Year Offered</dt>
+                                    <dd class="col-md-8 col-sm-7">Year ${offer.year}</dd>
+                                    <dt class="col-md-4 col-sm-5">Description</dt>
+                                    <dd class="col-md-8 col-sm-7">${unit.description}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#main-content').html(html);
+            }
+        });
+    </script>
+</body>
+</html>

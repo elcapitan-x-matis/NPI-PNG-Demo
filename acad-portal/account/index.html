@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account | Academic Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="StudentDash">
+        <div class="container"><h1 class="display-4 text-white">My Dashboard</h1><p class="lead text-white">Academic Portal</p></div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-book"></i>&nbsp;My Course</a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="../course/index.html">All Courses</a></div>
+                </li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item active" href="index.html">My Account</a>
+                        <a class="dropdown-item" href="../gradebook/index.html">My Gradebook</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-sm-12">
+                <h3 id="account-name">Loading...</h3>
+                <small class="text-muted" id="account-role">Student eProfile</small>
+                <hr>
+            </div>
+            
+            <!-- MAIN PROFILE CONTENT (Student) -->
+            <div class="col-lg-9 col-md-8 col-sm-12" id="profile-content">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- SIDEBAR SETTINGS -->
+            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                <div class="card">
+                    <div class="card-header"><h5><i class="bi-gear"></i>&nbsp;Settings</h5></div>
+                    <div class="card-body">
+                        <button type="button" data-toggle="modal" data-target="#ChangePassModal" class="btn btn-sm btn-block btn-primary">
+                            <i class="bi-key"></i>&nbsp;Change Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>	
+    </div>
+
+    <!-- PASSWORD MODAL -->
+    <div class="modal fade" id="ChangePassModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi-key"></i>&nbsp;Change Password</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <form id="updatePassForm">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="password" id="curPass" class="form-control" placeholder="current password..." required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="newPass" class="form-control" placeholder="new password..." required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="confirmPass" class="form-control" placeholder="re-enter new password..." required>
+                        </div>
+                        <p class="alertMessage text-danger" id="savePassAlert"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-sm btn-primary">Save Changes&nbsp;<i class="bi-save"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            const role = localStorage.getItem('npipng_role');
+            const userId = localStorage.getItem('npipng_id');
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            if (!role) { window.location.href = '../authentication/index.html'; return; }
+
+            // If instructor, redirect to staff account (which we handle below)
+            if (role === 'INSTRUCTOR') {
+                window.location.href = '../account/staff.html';
+                return;
+            }
+
+            loadNPIPNGData(function(data) {
+                const student = DB.getStudent(userId);
+                if(!student) return;
+                const course = DB.getCourse(student.courseTaken);
+
+                $('#account-name').text(`${student.firstname} ${student.lastname}`);
+                
+                $('#profile-content').html(`
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4 col-sm-12">
+                            <img src="../../assets/images/${student.profileImg}" class="img-fluid" style="padding: 20px;">
+                        </div>
+                        <div class="col-lg-9 col-md-8 col-sm-12">
+                            <h5>Personal Information</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Full Name: </strong>${student.firstname} ${student.middlename} ${student.lastname}</li>
+                                <li><strong>Email: </strong>${student.email}</li>
+                                <li><strong>Contact Number: </strong>${student.contactNum}</li>
+                            </ul>
+                            <h5>Academics</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Course Name: </strong>${course ? course.courseName : 'N/A'}</li>
+                                <li><strong>Year Level: </strong>${student.yearLevel}</li>
+                                <li><strong>Cumulative GPA: </strong>${student.GPA}</li>
+                            </ul>
+                            <hr>
+                        </div>
+                        <div class="col-lg-4 col-md-12">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <a href="../enrollment/index.html">
+                                        <h1 class="display-2"><i class="bi-archive"></i></h1>
+                                        <h3>Enrollment History</h3>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <a href="#" onclick="alert('Certificates not available in demo')">
+                                        <h1 class="display-2"><i class="bi-award"></i></h1>
+                                        <h3>Certificates & Awards</h3>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <a href="#" onclick="alert('Transcripts not available in demo')">
+                                        <h1 class="display-2"><i class="bi-file-earmark-text"></i></h1>
+                                        <h3>Reports & Transcripts</h3>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Handle Password Update (Demo Only)
+            $('#updatePassForm').submit(function(e) {
+                e.preventDefault();
+                if ($('#newPass').val() !== $('#confirmPass').val()) {
+                    $('#savePassAlert').text('Passwords do not match!');
+                } else {
+                    $('#savePassAlert').text('');
+                    alert('Password update simulated successfully!');
+                    $('#ChangePassModal').modal('hide');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

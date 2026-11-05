@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registry | Admin Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+    <link rel="shortcut icon" type="icon/ico" href="../../assets/favicon/favicon.ico">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="RegDash">
+        <div class="container">
+            <h1 class="display-4 text-white">Registrar's Office</h1>
+            <p class="lead text-white">Student Management Portal</p>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html">
+            <img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid">
+        </a>
+        <div class="collapse navbar-collapse show" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto" id="nav-links">
+                <li class="nav-item">
+                    <a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;&nbsp;Dashboard</a>
+                </li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-people"></i>&nbsp;Manage Students</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item active" href="../records/index.html">Student Registry</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#"><i class="bi-person-circle"></i>&nbsp;My Account</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" id="LogoutForm">
+                <button class="btn btn-outline-primary btn-sm my-2 my-sm-0" type="submit">Sign Out&nbsp;<i class="bi-box-arrow-right"></i></button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-sm-12">
+                <h2><i class="bi-people"></i>&nbsp;Student Registry</h2>
+                <small class="text-muted">Academic Administration / Manage Students / Records</small>
+                <hr>
+            </div>
+            
+            <div class="col-lg-3 col-md-12">
+                <h5><i class="bi-funnel"></i>&nbsp;Filters</h5>
+                <div class="form-group">
+                    <select class="custom-select custom-select-sm" id="filterCourse">
+                        <option value="">All Courses...</option>
+                        <!-- Injected via JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-9 col-md-12">
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
+                        <h5>Quick Search&nbsp;<i class="bi-search"></i></h5>
+                    </div>
+                    <div class="col-md-9 col-sm-12">
+                        <div class="form-group">
+                            <input type="search" id="searchQuery" class="form-control form-control-sm" placeholder="enter name or ID...">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row" id="student-results">
+                    <!-- Student cards injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5">
+        <p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            const role = localStorage.getItem('npipng_role');
+            if (!role) { window.location.href = '../authentication/index.html'; return; }
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            loadNPIPNGData(function(data) {
+                // Populate filter dropdown
+                data.courses.forEach(c => {
+                    $('#filterCourse').append(`<option value="${c.courseID}">${c.courseName}</option>`);
+                });
+
+                renderStudents(data.students);
+
+                // Search Listener
+                $('#searchQuery, #filterCourse').on('keyup change', function() {
+                    const query = $('#searchQuery').val().toLowerCase();
+                    const courseFilter = $('#filterCourse').val();
+
+                    let filtered = data.students.filter(s => {
+                        const matchQuery = s.firstname.toLowerCase().includes(query) || 
+                                           s.lastname.toLowerCase().includes(query) || 
+                                           s.studentID.toString().includes(query);
+                        const matchCourse = courseFilter ? s.courseTaken == courseFilter : true;
+                        return matchQuery && matchCourse;
+                    });
+                    renderStudents(filtered);
+                });
+            });
+
+            function renderStudents(students) {
+                const container = $('#student-results');
+                container.empty();
+                
+                if(students.length === 0) {
+                    container.html('<div class="col-12"><div class="alert alert-warning">No students found matching your criteria.</div></div>');
+                    return;
+                }
+
+                students.forEach(student => {
+                    container.append(`
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+                            <div class="card">
+                                <div class="card-header">			
+                                    <a href="../student/index.html?id=${student.studentID}">
+                                        <h5><i class="bi-person"></i>&nbsp;${student.studentID}</h5>
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <small class="text-muted">${student.firstname} ${student.lastname}</small><br>
+                                    <small class="text-muted">${student.email}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

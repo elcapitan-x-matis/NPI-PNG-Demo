@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Hub | Academic Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="InstructorDash">
+        <div class="container"><h1 class="display-4 text-white">Course Administration</h1><p class="lead text-white">Academic Portal</p></div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-book"></i>&nbsp;My Units</a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="#">Current Unit</a></div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="../gradebook/index.html">My Gradebook</a></div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body" id="unit-container">
+        <!-- Content injected via JS -->
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            const unitId = new URLSearchParams(window.location.search).get('id');
+            if (!unitId) { window.location.href = '../dashboard/index.html'; return; }
+
+            const role = localStorage.getItem('npipng_role');
+            const userId = localStorage.getItem('npipng_id');
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            loadNPIPNGData(function(data) {
+                const unit = DB.getUnit(unitId);
+                if (!unit) { $('#unit-container').html('<div class="alert alert-danger">Unit not found</div>'); return; }
+                const staff = DB.getStaff(unit.lectAssigned);
+                const offering = data.offerings.find(o => o.unitID === unit.unitID) || {term: 1, semester: 1, year: 1};
+
+                let headerHtml = `
+                    <div class="row justify-content-center">
+                        <div class="col-md-12">
+                            <h2>${unit.unitName}</h2>
+                            <small class="text-muted">${unit.unitCode}</small>
+                            <hr>
+                        </div>
+                `;
+
+                let contentHtml = '';
+
+                if (role === 'INSTRUCTOR' && unit.lectAssigned == userId) {
+                    contentHtml = renderInstructorView(unit, staff, offering, data);
+                } else if (role === 'STUDENT') {
+                    const enrol = data.enrollments.find(e => e.studentID == userId && e.offerID.split('.')[0] == unit.unitID && e.enrollStatus == 1);
+                    if (enrol) {
+                        contentHtml = renderStudentView(unit, staff, offering, data);
+                    } else {
+                        contentHtml = renderDefaultView(unit, staff, offering, "You are not enrolled in this unit.");
+                    }
+                } else {
+                    contentHtml = renderDefaultView(unit, staff, offering, "");
+                }
+
+                $('#unit-container').html(headerHtml + contentHtml + `</div>`);
+            });
+
+            function renderDefaultView(unit, staff, offer, alertMsg) {
+                return `
+                    <div class="col-lg-3 col-md-4 col-sm-12"><img src="../../assets/images/${unit.coverImg}" class="img-fluid"></div>
+                    <div class="col-lg-9 col-md-8 col-sm-12">
+                        ${alertMsg ? `<div class="alert alert-warning">${alertMsg}</div>` : ''}
+                        <p>${unit.description}</p>
+                        <p class="text-muted">
+                            <strong>Instructor: </strong>${staff ? staff.firstname + ' ' + staff.lastname : 'Not Assigned'}<br>
+                            <strong>Offered: </strong>Term ${offer.term}, Semester ${offer.semester} of Year ${offer.year}<br>
+                            <strong>Credit Points: </strong>${unit.creditPoints}<br>
+                        </p>
+                    </div>
+                `;
+            }
+
+            function renderStudentView(unit, staff, offer, data) {
+                const notices = data.notices.filter(n => n.unitID == unit.unitID);
+                const resources = data.resources.filter(r => r.unitID == unit.unitID);
+                const activities = data.activities.filter(a => a.unitID == unit.unitID);
+
+                let noticeHtml = notices.map(n => `<li class="list-group-item"><a href="../noticeboard/index.html?unit=${unit.unitID}"><i class="bi-chevron-right"></i> ${n.subject}</a></li>`).join('');
+                let resHtml = resources.map(r => `<li class="list-group-item"><a href="../resource/index.html?unit=${unit.unitID}"><i class="bi-chevron-right"></i> ${r.title}</a></li>`).join('');
+                let actHtml = activities.map(a => `<li class="list-group-item"><a href="../activity/index.html?unit=${unit.unitID}"><i class="bi-chevron-right"></i> ${a.title}</a></li>`).join('');
+
+                return `
+                    <div class="col-md-3 col-sm-4 col-xs-12">
+                        <div class="overlay-container">
+                            <img src="../../assets/images/${unit.coverImg}" class="img-fluid overlay-image">
+                            <div class="overlay-text"><button class="btn btn-sm btn-block btn-primary">Read More</button></div>
+                        </div>
+                        <hr>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a href="../gradebook/index.html" class="btn btn-no-style btn-sm"><h5><i class="bi-book"></i><br>My Gradebook</h5></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-sm-8 col-xs-12">
+                        <section class="unit_content_section">
+                            <h5><i class="bi-megaphone"></i> Recent Notices</h5>
+                            <ul class="list-group list-group-flush">${noticeHtml || '<li class="text-muted">No notices</li>'}</ul>
+                        </section>
+                        <section class="unit_content_section">
+                            <h5><i class="bi-file-earmark-text"></i> Resources</h5>
+                            <ul class="list-group list-group-flush">${resHtml || '<li class="text-muted">No resources</li>'}</ul>
+                        </section>
+                        <section class="unit_content_section">
+                            <h5><i class="bi-file-earmark-check"></i> Activities</h5>
+                            <ul class="list-group list-group-flush">${actHtml || '<li class="text-muted">No activities</li>'}</ul>
+                        </section>
+                    </div>
+                `;
+            }
+
+            function renderInstructorView(unit, staff, offer, data) {
+                let baseView = renderStudentView(unit, staff, offer, data);
+                return baseView.replace('<hr>', `
+                    <hr>
+                    <div class="card mt-3">
+                        <div class="card-header"><h5><i class="bi-pencil"></i> Instructor Actions</h5></div>
+                        <div class="card-body">
+                            <button class="btn btn-sm btn-primary" onclick="alert('Create Notice clicked')">Add Notice</button>
+                            <button class="btn btn-sm btn-primary" onclick="alert('Create Activity clicked')">Add Activity</button>
+                        </div>
+                    </div>
+                `);
+            }
+        });
+    </script>
+</body>
+</html>

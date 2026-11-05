@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activities | Academic Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="StudentDash">
+        <div class="container"><h1 class="display-4 text-white">My Dashboard</h1><p class="lead text-white">Academic Portal</p></div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-book"></i>&nbsp;My Course</a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="../course/index.html">All Courses</a></div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="../gradebook/index.html">My Gradebook</a></div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <span class="float-right"><a href="javascript:history.back()" class="btn btn-sm btn-outline-dark"><i class="bi-chevron-left"></i>&nbsp;Go Back</a></span>
+                <h3><i class="bi-file-earmark-check"></i>&nbsp;<span id="unit-name">Activities</span></h3>
+                <small class="text-muted">Activities & Assessments</small>
+                <hr>
+            </div>
+            
+            <div class="col-md-8 col-sm-12">
+                <div id="activities-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            const userId = localStorage.getItem('npipng_id');
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+            
+            // Assume ID passed via unit parameter
+            const unitId = new URLSearchParams(window.location.search).get('unit') || 180;
+
+            loadNPIPNGData(function(data) {
+                const unit = DB.getUnit(unitId);
+                if(unit) $('#unit-name').text(unit.unitName + " Activities");
+
+                const activities = data.activities.filter(a => a.unitID == unitId);
+                const container = $('#activities-list');
+
+                if (activities.length === 0) {
+                    container.html('<div class="alert alert-info">No activities assigned yet.</div>');
+                    return;
+                }
+
+                activities.forEach(act => {
+                    const mark = data.activity_marks.find(m => m.studentID == userId && m.activityID == act.ID);
+                    
+                    let scoreHtml = '<span class="badge badge-warning">Not Graded</span>';
+                    if(mark) {
+                        scoreHtml = `<span class="badge badge-success">Scored: ${mark.score} / ${act.totalMarks} (${mark.weight}%)</span>`;
+                    }
+
+                    container.append(`
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">${act.title}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Type: ${act.type} &middot; Weight: ${act.percentage}%</h6>
+                                <p class="card-text">Please complete this ${act.type.toLowerCase()} and submit it before the due date.</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div>${scoreHtml}</div>
+                                    <button class="btn btn-sm btn-outline-primary">Make a Submission</button>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

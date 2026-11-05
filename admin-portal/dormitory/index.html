@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Dormitory | Student Services</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="SsDash">
+        <div class="container"><h1 class="display-4 text-white">Student Services</h1><p class="lead text-white">Student Management Portal</p></div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-house-door"></i>&nbsp;Manage Dormitory</a>
+                    <div class="dropdown-menu"><a class="dropdown-item active" href="index.html">All Dormitories</a></div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="#">My Account</a></div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <h2 id="page-title"><i class="bi-building"></i>&nbsp;Manage Dormitories</h2>
+                <small class="text-muted" id="breadcrumb">Student Services</small>
+                <hr>
+            </div>
+            <div class="col-md-12" id="main-content">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- DORM INFO MODAL (Hidden by default) -->
+    <div class="modal fade" id="viewDormInfo" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi-info-circle"></i>&nbsp;Dorm Information</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body" id="dorm-info-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            const role = localStorage.getItem('npipng_role');
+            if (role !== 'SS') { window.location.href = '../authentication/index.html'; return; }
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            const dormId = new URLSearchParams(window.location.search).get('id');
+
+            loadNPIPNGData(function(data) {
+                if (dormId) {
+                    renderSingleDorm(data, dormId);
+                } else {
+                    renderAllDorms(data);
+                }
+            });
+
+            function renderAllDorms(data) {
+                // Mocking assigned dorms (In a real app, filter by deanOfDorm)
+                const dorms = data.dorms || []; // Using the data structure
+                let html = '<div class="row">';
+
+                if (dorms.length === 0) {
+                    html += '<div class="alert alert-warning w-100">No dormitories assigned to you.</div>';
+                } else {
+                    dorms.forEach(dorm => {
+                        html += `
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <a href="?id=${dorm.dormID}" class="btn btn-block btn-sm btn-outline-secondary">
+                                            <h3 class="display-3">${dorm.dormCode}</h3>
+                                        </a>
+                                        <p class="lead text-muted">${dorm.dormName}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                html += '</div>';
+                $('#main-content').html(html);
+            }
+
+            function renderSingleDorm(data, id) {
+                const dorm = data.dorms.find(d => d.dormID == id);
+                if(!dorm) { $('#main-content').html('<div class="alert alert-danger">Dorm not found</div>'); return; }
+
+                $('#page-title').html(`<i class="bi-house"></i>&nbsp;${dorm.dormName}`);
+                $('#breadcrumb').text(`Student Services / Manage Dormitory / ${dorm.dormCode}`);
+
+                let roomsHtml = '';
+                const rooms = data.rooms ? data.rooms.filter(r => r.dormID == id) : [];
+
+                rooms.forEach(room => {
+                    const occupants = data.room_assign ? data.room_assign.filter(ra => ra.roomID == room.roomID) : [];
+                    const isFull = occupants.length >= room.numOfOccup;
+                    const badge = isFull ? '<span class="badge badge-warning">Fully Occupied</span>' : '<span class="badge badge-success">Space Available</span>';
+
+                    roomsHtml += `
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                            <div class="card">
+                                <div class="card-header"><h5>${room.placeNumber}</h5></div>
+                                <div class="card-body">
+                                    <p class="text-muted">Total Occupants: ${occupants.length}</p>
+                                    ${badge}<br><br>
+                                    <a href="../room/index.html?id=${room.roomID}" class="btn btn-block btn-sm btn-outline-primary">
+                                        View Occupants&nbsp;<i class="bi-people"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                let html = `
+                    <div class="col-xs-12 text-right mb-3">
+                        <button class="btn btn-sm btn-primary" onclick="showDormInfo('${dorm.dormCode}','${dorm.dormName}',${dorm.numOfRooms},${dorm.occpPerRoom},${dorm.totalOccp})">
+                            <i class="bi-info-circle"></i>&nbsp;Info
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Edit mode disabled in demo')">
+                            <i class="bi-pencil-square"></i>&nbsp;Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="alert('Add room disabled in demo')">
+                            <i class="bi-plus-circle"></i>&nbsp;Add New Room
+                        </button>
+                    </div>
+                    <div class="row">${roomsHtml || '<div class="alert alert-info w-100">No rooms in this dormitory.</div>'}</div>
+                `;
+                $('#main-content').html(html);
+            }
+
+            // Global function for the info button
+            window.showDormInfo = function(code, name, numRooms, occpRoom, totalOccp) {
+                $('#dorm-info-body').html(`
+                    <dl class="row">
+                        <dt class="col-sm-6">Name</dt><dd class="col-sm-6">${name}</dd>
+                        <dt class="col-sm-6">Code</dt><dd class="col-sm-6">${code}</dd>
+                        <dt class="col-sm-6">Number of Rooms</dt><dd class="col-sm-6">${numRooms}</dd>
+                        <dt class="col-sm-6">Occupants Per Room</dt><dd class="col-sm-6">${occpRoom}</dd>
+                        <dt class="col-sm-6">Total Occupants</dt><dd class="col-sm-6">${totalOccp}</dd>
+                    </dl>
+                `);
+                $('#viewDormInfo').modal('show');
+            };
+        });
+    </script>
+</body>
+</html>

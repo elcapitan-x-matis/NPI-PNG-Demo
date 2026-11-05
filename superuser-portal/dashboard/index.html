@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systems Overview | Superuser</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="SuperUserDash">
+        <div class="container"><h1 class="display-4 text-white">Systems Administration</h1><p class="lead text-white">Superuser Dashboard</p></div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active"><a class="nav-link" href="index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-people"></i>&nbsp;Manage Accounts</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Staff Accounts</a>
+                        <a class="dropdown-item" href="#">Student Accounts</a>
+                        <a class="dropdown-item" href="#">Superusers</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="#">My Account</a></div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <h2><i class="bi-shield-lock"></i>&nbsp;Systems Overview</h2>
+                <small class="text-muted">Welcome back, <span class="user-name-placeholder"></span>. Here is the global status of the NPIPNG platform.</small>
+                <hr>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center mb-3">
+                    <div class="card-body">
+                        <h1 class="display-4 text-primary"><i class="bi-people"></i></h1>
+                        <h3 id="su-count-students">0</h3>
+                        <p class="text-muted">Total Students</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center mb-3">
+                    <div class="card-body">
+                        <h1 class="display-4 text-success"><i class="bi-person-badge"></i></h1>
+                        <h3 id="su-count-staff">0</h3>
+                        <p class="text-muted">Total Staff</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center mb-3">
+                    <div class="card-body">
+                        <h1 class="display-4 text-warning"><i class="bi-person-check"></i></h1>
+                        <h3 id="su-count-admins">0</h3>
+                        <p class="text-muted">Superusers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-center mb-3">
+                    <div class="card-body">
+                        <h1 class="display-4 text-info"><i class="bi-book"></i></h1>
+                        <h3 id="su-count-courses">0</h3>
+                        <p class="text-muted">Total Courses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            const role = localStorage.getItem('npipng_role');
+            
+            if (role !== 'SUPERUSER') { window.location.href = '../authentication/index.html'; return; }
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            loadNPIPNGData(function(data) {
+                $('#su-count-students').text(data.students.length);
+                $('#su-count-staff').text(data.staff.length);
+                $('#su-count-admins').text(data.admins.length);
+                $('#su-count-courses').text(data.courses.length);
+            });
+        });
+    </script>
+</body>
+</html>

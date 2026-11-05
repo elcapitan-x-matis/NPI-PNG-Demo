@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Catalog | Academic Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <!-- Banner ID will be changed via JS based on the view -->
+    <div class="jumbotron jumbotron-fluid" id="Home" style="padding: 4rem 0;">
+        <div class="container text-center">
+            <h1 class="display-4 text-white" id="page-title">Explore Courses</h1>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-book"></i>&nbsp;My Course</a>
+                    <div class="dropdown-menu"><a class="dropdown-item active" href="index.html">All Courses</a></div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="../gradebook/index.html">My Gradebook</a></div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body" id="main-container">
+        <!-- Content injected via JS -->
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name') || 'Guest');
+            
+            const courseId = new URLSearchParams(window.location.search).get('id');
+
+            loadNPIPNGData(function(data) {
+                if (courseId) {
+                    renderSingleCourse(data, courseId);
+                } else {
+                    renderDepartments(data);
+                }
+            });
+
+            function renderDepartments(data) {
+                let html = '';
+                data.departments.forEach(dept => {
+                    const deptCourses = data.courses.filter(c => c.underDept === dept.deptID);
+                    let courseList = deptCourses.map(c => `
+                        <li class="list-group-item">
+                            <a href="?id=${c.courseID}"><h5 class="card-title">${c.courseName}</h5></a>
+                            <small class="text-muted">${c.courseCode}</small>
+                        </li>
+                    `).join('');
+
+                    html += `
+                        <div class="row mb-5">
+                            <div class="col-md-9 col-sm-8 col-xs-12">
+                                <div class="overlay-container" style="padding: 40px 0;">
+                                    <img src="../../assets/images/${dept.coverImg}" class="img-fluid overlay-image" style="height: 250px; object-fit: cover; width: 100%;">
+                                    <div class="overlay-text">
+                                        <h3>${dept.deptName}</h3>	
+                                        <p class="text-muted">${dept.deptCode}</p>	
+                                    </div>
+                                </div>
+                                <article><p>${dept.description}</p></article>
+                                <hr>
+                            </div>
+                            <div class="col-md-3 col-sm-4 col-xs-12">
+                                <h4><i class="bi-book"></i>&nbsp;Courses Offered</h4>
+                                <ul class="list-group list-group-flush">${courseList}</ul>
+                            </div>				
+                        </div>
+                    `;
+                });
+                $('#main-container').html(html);
+            }
+
+            function renderSingleCourse(data, id) {
+                const course = DB.getCourse(id);
+                if (!course) { $('#main-container').html('<div class="alert alert-danger">Course not found</div>'); return; }
+
+                $('#page-title').text(course.courseName);
+                const units = data.units.filter(u => u.underCourse === course.courseID);
+
+                let unitsHtml = units.map(unit => `
+                    <div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+                        <div class="overlay-container">
+                            <img src="../../assets/images/${unit.coverImg}" class="img-fluid overlay-image" style="height: 200px; object-fit: cover;">
+                            <div class="overlay-text">
+                                <h4 class="overlay-header">${unit.unitName}</h4>
+                                <small class="text-muted">${unit.unitCode}</small><hr>
+                                <a href="../unit/index.html?id=${unit.unitID}" class="btn btn-sm btn-block btn-primary">See More</a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                let html = `
+                    <div class="row justify-content-center">
+                        <div class="col-md-9 col-sm-8 col-xs-12">
+                            <div class="row">${unitsHtml || '<div class="alert alert-info w-100">No units found for this course.</div>'}</div>
+                        </div>
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <h5><i class="bi-info-circle"></i>&nbsp;Course Information</h5>
+                            <div class="card"><div class="card-body text-center">
+                                <h1 class="display-1">${course.duration}</h1>
+                                <p class="lead text-muted">Years of study</p>
+                            </div></div>
+                            <div class="card"><div class="card-body text-center">
+                                <h1 class="display-1">${units.length}</h1>
+                                <p class="lead text-muted">Units offered</p>
+                            </div></div>
+                            <p>${course.description}</p>
+                        </div>
+                    </div>
+                `;
+                $('#main-container').html(html);
+            }
+        });
+    </script>
+</body>
+</html>

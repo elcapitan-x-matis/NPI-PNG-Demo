@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Profile | Superuser</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/custom.css">
+</head>
+<body>
+
+    <div class="jumbotron jumbotron-fluid" id="SuperUserDash">
+        <div class="container"><h1 class="display-4 text-white">Systems Administration</h1><p class="lead text-white">Superuser Dashboard</p></div>
+    </div>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+        <a class="navbar-brand" href="../dashboard/index.html"><img src="../../assets/favicon/android-chrome-192x192.png" width="35" height="35" class="img-fluid"></a>
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../dashboard/index.html"><i class="bi-speedometer2"></i>&nbsp;Dashboard</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="bi-people"></i>&nbsp;Manage Accounts</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="../users/index.html?staff">Staff Accounts</a>
+                        <a class="dropdown-item" href="../users/index.html?student">Student Accounts</a>
+                        <a class="dropdown-item" href="../users/index.html?superuser">Superusers</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Hi, <span class="user-name-placeholder">User</span></a>
+                    <div class="dropdown-menu"><a class="dropdown-item" href="../settings/index.html">My Account</a></div>
+                </li>
+            </ul>
+            <form class="form-inline" id="LogoutForm"><button class="btn btn-outline-primary btn-sm" type="submit">Sign Out</button></form>
+        </div>
+    </nav>
+
+    <div class="container body">
+        <div class="row justify-content-center">
+            <div class="col-sm-12">
+                <h3><i class="bi-person-circle"></i>&nbsp;<span id="page-title">Account Profile</span></h3>
+                <small class="text-muted" id="breadcrumb">Systems Administration / Manage Accounts</small>
+                <hr>
+            </div>
+            <div class="col-lg-9 col-md-8 col-sm-12" id="profile-content">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-5"><p class="text-white">Copyright &copy; <span id="year"></span>, NPIPNG</p></footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/data-loader.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#year').text(new Date().getFullYear());
+            if (localStorage.getItem('npipng_role') !== 'SUPERUSER') {
+                window.location.href = '../authentication/index.html';
+                return;
+            }
+            $('.user-name-placeholder').text(localStorage.getItem('npipng_name'));
+
+            const userId = new URLSearchParams(window.location.search).get('id');
+            if(!userId) { window.location.href = '../users/index.html'; return; }
+
+            loadNPIPNGData(function(data) {
+                const container = $('#profile-content');
+                
+                // 1. Check if Superuser
+                const admin = data.admins.find(a => a.adminID === userId);
+                if (admin) {
+                    $('#page-title').text(`${admin.firstname} ${admin.lastname}`);
+                    $('#breadcrumb').text("Systems Administration / Manage Accounts / Super Administrators");
+                    
+                    container.html(`
+                        <div class="card mb-4"><div class="card-body">
+                            <h4>Account Information</h4>
+                            <dl class="row mt-3">
+                                <dt class="col-sm-4">Full Name</dt><dd class="col-sm-8">${admin.firstname} ${admin.lastname}</dd>
+                                <dt class="col-sm-4">Username</dt><dd class="col-sm-8">${admin.username}</dd>
+                                <dt class="col-sm-4">Email</dt><dd class="col-sm-8">${admin.email}</dd>
+                                <dt class="col-sm-4">ID</dt><dd class="col-sm-8">${admin.adminID}</dd>
+                            </dl>
+                            <button class="btn btn-primary btn-sm" onclick="alert('Edit mode not available in demo')"><i class="bi-pencil-square"></i> Edit Account</button>
+                        </div></div>
+                    `);
+                    return;
+                }
+
+                // 2. Check if Staff
+                const staff = data.staff.find(s => s.staffID == userId);
+                if (staff) {
+                    $('#page-title').text(`${staff.firstname} ${staff.lastname}`);
+                    $('#breadcrumb').text("Systems Administration / Manage Accounts / Staff");
+                    
+                    container.html(`
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card mb-4"><div class="card-body">
+                                    <h4>Staff Information</h4>
+                                    <dl class="row mt-3">
+                                        <dt class="col-sm-4">Full Name</dt><dd class="col-sm-8">${staff.firstname} ${staff.lastname}</dd>
+                                        <dt class="col-sm-4">Email</dt><dd class="col-sm-8">${staff.email}</dd>
+                                        <dt class="col-sm-4">Position</dt><dd class="col-sm-8">${staff.position}</dd>
+                                        <dt class="col-sm-4">Role</dt><dd class="col-sm-8"><span class="badge badge-info">${staff.roleCode}</span></dd>
+                                        <dt class="col-sm-4">Status</dt><dd class="col-sm-8"><span class="badge badge-success">Activated</span></dd>
+                                    </dl>
+                                    <button class="btn btn-primary btn-sm" onclick="alert('Edit mode not available in demo')"><i class="bi-pencil-square"></i> Edit Account</button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="alert('Deactivate clicked')"><i class="bi-x-circle"></i> De-Activate</button>
+                                </div></div>
+                            </div>
+                            <div class="col-md-4">
+                                <img src="../../assets/images/${staff.profileImg}" class="img-fluid rounded">
+                            </div>
+                        </div>
+                    `);
+                    return;
+                }
+
+                // 3. Check if Student
+                const student = data.students.find(s => s.studentID == userId);
+                if (student) {
+                    const course = DB.getCourse(student.courseTaken);
+                    $('#page-title').text(`${student.firstname} ${student.lastname}`);
+                    $('#breadcrumb').text("Systems Administration / Manage Accounts / Student");
+                    
+                    container.html(`
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card mb-4"><div class="card-body">
+                                    <h4>Student Information</h4>
+                                    <dl class="row mt-3">
+                                        <dt class="col-sm-4">Full Name</dt><dd class="col-sm-8">${student.firstname} ${student.lastname}</dd>
+                                        <dt class="col-sm-4">Student ID</dt><dd class="col-sm-8">${student.studentID}</dd>
+                                        <dt class="col-sm-4">Email</dt><dd class="col-sm-8">${student.email}</dd>
+                                        <dt class="col-sm-4">Course</dt><dd class="col-sm-8">${course ? course.courseName : 'N/A'}</dd>
+                                        <dt class="col-sm-4">Year Level</dt><dd class="col-sm-8">Year ${student.yearLevel}</dd>
+                                        <dt class="col-sm-4">Status</dt><dd class="col-sm-8"><span class="badge badge-success">Activated</span></dd>
+                                    </dl>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="alert('Deactivate clicked')"><i class="bi-x-circle"></i> De-Activate</button>
+                                </div></div>
+                            </div>
+                            <div class="col-md-4">
+                                <img src="../../assets/images/${student.profileImg}" class="img-fluid rounded">
+                            </div>
+                        </div>
+                    `);
+                    return;
+                }
+
+                // 4. Not found
+                container.html(`<div class="alert alert-danger">User ID not found in any table.</div>`);
+            });
+        });
+    </script>
+</body>
+</html>

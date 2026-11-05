@@ -1,0 +1,180 @@
+<div id="template-top"></div>
+
+<div class="container body">
+	<div class="row justify-content-center">
+		<div class="col-sm-12">
+			<span class="float-right">
+				<a href="../records.html" class="btn btn-sm btn-outline-dark">
+					See All Student Records&nbsp;<i class="bi-chevron-bar-right"></i>
+				</a>
+			</span>
+			<h3><i class="bi-person"></i>&nbsp;<span id="student-full-name">Loading...</span></h3>
+			<small class="text-muted">Academic Administration / Manage Students / eProfile</small>
+			<hr>
+		</div>
+
+		<!-- TABS NAVIGATION -->
+		<div class="col-lg-3 col-md-4 col-sm-12">
+			<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+				<a class="nav-link active" id="v-pills-info-tab" data-toggle="pill" href="#v-pills-info" role="tab"><i class="bi-file-earmark-text"></i>&nbsp;Student Details</a>
+				<a class="nav-link" id="v-pills-edit-tab" data-toggle="pill" href="#v-pills-edit" role="tab"><i class="bi-gear"></i>&nbsp;Actions</a>
+				<a class="nav-link" id="v-pills-units-tab" data-toggle="pill" href="#v-pills-units" role="tab"><i class="bi-archive"></i>&nbsp;Enrollment Archive</a>
+				<a class="nav-link" id="v-pills-gradebook-tab" data-toggle="pill" href="#v-pills-gradebook" role="tab"><i class="bi-book"></i>&nbsp;Gradebook</a>
+				<a class="nav-link" id="v-pills-transcripts-tab" data-toggle="pill" href="#v-pills-transcripts" role="tab"><i class="bi-file-earmark-text"></i>&nbsp;Reports & Transcripts</a>
+				<a class="nav-link" id="v-pills-certificates-tab" data-toggle="pill" href="#v-pills-certificates" role="tab"><i class="bi-award"></i>&nbsp;Certificates & Awards</a>
+			</div>
+		</div>
+
+		<!-- TAB CONTENT -->
+		<div class="col-lg-9 col-md-8 col-sm-12">
+			<div class="tab-content" id="v-pills-tabContent">
+				<div class="tab-pane fade show active" id="v-pills-info" role="tabpanel">
+					<div id="content-info"></div>
+				</div>
+				<div class="tab-pane fade" id="v-pills-edit" role="tabpanel">
+					<div class="alert alert-info">Action form hidden in static demo.</div>
+				</div>
+				<div class="tab-pane fade" id="v-pills-units" role="tabpanel">
+					<div id="content-enrolments"></div>
+				</div>
+				<div class="tab-pane fade" id="v-pills-gradebook" role="tabpanel">
+					<div id="content-gradebook"></div>
+				</div>
+				<div class="tab-pane fade" id="v-pills-transcripts" role="tabpanel">
+					<div class="alert alert-info">Transcripts are not available in the static demo.</div>
+				</div>
+				<div class="tab-pane fade" id="v-pills-certificates" role="tabpanel">
+					<div class="alert alert-info">Certificates are not available in the static demo.</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+
+<div id="template-bottom"></div>
+<script src="../assets/js/data-loader.js"></script>
+<script src="../assets/js/template-loader.js"></script>
+<script>
+    $(document).ready(function() {
+        // Get ID from URL (?id=210001)
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentID = urlParams.get('id');
+
+        if (!studentID) {
+            alert("No student ID provided.");
+            window.location.href = '../records.html';
+            return;
+        }
+
+        loadNPIPNGData(function(data) {
+            const student = DB.getStudent(studentID);
+            if (!student) {
+                alert("Student not found.");
+                return;
+            }
+            const course = DB.getCourse(student.courseTaken);
+            
+            // Set Header
+            $('#student-full-name').text(`${student.firstname} ${student.lastname}`);
+
+            // 1. INFO TAB
+            $('#content-info').html(`
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="../assets/images/${student.profileImg}" class="img-fluid" alt="Profile">
+                    </div>
+                    <div class="col-md-8">
+                        <dl class="row">
+                            <h4 class="col-sm-12">Personal Information</h4>
+                            <dt class="col-sm-4">Student ID</dt><dd class="col-sm-8">${student.studentID}</dd>
+                            <dt class="col-sm-4">Full Name</dt><dd class="col-sm-8">${student.firstname} ${student.middlename} ${student.lastname}</dd>
+                            <dt class="col-sm-4">Email</dt><dd class="col-sm-8">${student.email}</dd>
+                            <dt class="col-sm-4">Gender</dt><dd class="col-sm-8">${student.gender}</dd>
+                            <dt class="col-sm-4">Date of Birth</dt><dd class="col-sm-8">${Calc.formatDateOnly(student.dob)}</dd>
+                            <dt class="col-sm-4">Address</dt><dd class="col-sm-8">${student.homeAddress}, ${student.homeProvince}</dd>
+                            <dt class="col-sm-4">Contact</dt><dd class="col-sm-8">${student.contactNum}</dd>
+                            <h4 class="col-sm-12 mt-3">Academic Information</h4>
+                            <dt class="col-sm-4">Course</dt><dd class="col-sm-8">${course ? course.courseName : 'N/A'}</dd>
+                            <dt class="col-sm-4">Year Level</dt><dd class="col-sm-8">${student.yearLevel}</dd>
+                            <dt class="col-sm-4">GPA</dt><dd class="col-sm-8">${student.GPA}</dd>
+                            <dt class="col-sm-4">Scholarship</dt><dd class="col-sm-8">${student.scholarship}</dd>
+                        </dl>
+                    </div>
+                </div>
+            `);
+
+            // 2. ENROLMENT ARCHIVE TAB
+            const enrolments = DB.getEnrollments(studentID);
+            let enrolHtml = `<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th>Unit Code</th><th>Name</th><th>Status</th></tr></thead><tbody>`;
+            
+            if(enrolments.length === 0) {
+                enrolHtml += `<tr><td colspan="3" class="text-center">No enrollments found.</td></tr>`;
+            } else {
+                enrolments.forEach(e => {
+                    const unitId = parseInt(e.offerID.split('.')[0]);
+                    const unit = DB.getUnit(unitId);
+                    if(unit) {
+                        let badge = e.enrollStatus == 1 ? '<span class="badge badge-success">Enrolled</span>' : '<span class="badge badge-warning">Unenrolled</span>';
+                        enrolHtml += `<tr><td>${unit.unitCode}</td><td>${unit.unitName}</td><td>${badge}</td></tr>`;
+                    }
+                });
+            }
+            enrolHtml += `</tbody></table></div>`;
+            $('#content-enrolments').html(enrolHtml);
+
+            // 3. GRADEBOOK TAB
+            let gradeHtml = `<form><div class="row"><div class="col-lg-2">`;
+            for (let i = 1; i <= student.yearLevel; i++) {
+                gradeHtml += `<button class="btn btn-block btn-outline-primary" type="button" data-toggle="collapse" data-target="#year${i}" style="margin-bottom: 10px;">Year ${i}</button>`;
+            }
+            gradeHtml += `</div><div class="col-lg-10">`;
+
+            for (let year = 1; year <= student.yearLevel; year++) {
+                gradeHtml += `<div class="col-xl-12"><div class="collapse multi-collapse" id="year${year}"><h4 class="heading">Year ${year}</h4>`;
+                
+                let totalPoints = 0;
+                let totalUnits = 0;
+
+                enrolments.forEach(e => {
+                    const unitId = parseInt(e.offerID.split('.')[0]);
+                    const unit = DB.getUnit(unitId);
+                    if(unit) {
+                        const gradePts = Calc.getGradePoints(e.grade);
+                        totalPoints += gradePts;
+                        totalUnits++;
+                        gradeHtml += `
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr><th colspan="5" class="bg-dark text-white text-center">Unit: ${unit.unitCode}</th></tr>
+                                        <tr><th>Unit Name</th><th>Score</th><th>Grade</th><th>Points</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>${unit.unitName}</td>
+                                            <td>${e.score}</td>
+                                            <td>${e.grade}</td>
+                                            <td>${gradePts}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+                });
+                gradeHtml += `</div></div>`;
+            }
+            
+            let cumulativeGPA = totalUnits > 0 ? (totalPoints / totalUnits).toFixed(2) : '0.00';
+            gradeHtml += `
+                <div class="col-xl-12">
+                    <div class="card card-body text-center mt-3">
+                        <h4 class="heading">Current Cumulative GPA</h4>
+                        <h5 class="display-4">${cumulativeGPA}</h5>
+                    </div>
+                </div>
+            </div></form>`;
+            $('#content-gradebook').html(gradeHtml);
+        });
+    });
+</script>
