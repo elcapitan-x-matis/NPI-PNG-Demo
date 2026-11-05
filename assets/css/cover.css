@@ -1,0 +1,200 @@
+/* ============================================================
+   NPIPNG ROOT PORTAL LANDING PAGE
+   Matches the internal portal theme (Maroon/Goldenrod/Sea-Blue)
+   ============================================================ */
+
+:root {
+	--npipng-maroon: maroon;
+	--npipng-maroon-hover: #750000;
+	--npipng-sea-blue: #5064fe;
+	--npipng-sea-blue-hover: #3b51f9;
+	--npipng-gold: goldenrod;
+	--npipng-gold-hover: #b98d1d;
+	--npipng-dark: #191919;
+	--npipng-bg: #f8f9fa;
+}
+
+html, body {
+	height: 100%;
+	background-color: var(--npipng-bg);
+	font-family: "Karla", sans-serif;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	color: var(--npipng-dark);
+	min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5 {
+	font-family: "DM Serif Display", serif !important;
+	color: var(--npipng-maroon);
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.page-header {
+	padding: 5rem 1rem 3rem;
+	text-align: center;
+}
+
+.brand-title {
+	font-family: "DM Serif Display", serif !important;
+	font-weight: 800;
+	font-size: clamp(2rem, 5vw, 3.5rem);
+	letter-spacing: -0.03em;
+	color: var(--npipng-maroon);
+	margin-bottom: 1rem;
+}
+
+.brand-subtitle {
+	color: #6c757d;
+	font-size: 1.1rem;
+	max-width: 700px;
+	margin: 0 auto;
+	line-height: 1.6;
+}
+
+/* ============================================================
+   PORTAL CARDS
+   ============================================================ */
+.portal-card {
+	position: relative;
+	border-radius: 0; /* Match system flat borders */
+	overflow: hidden;
+	text-decoration: none;
+	color: var(--npipng-dark);
+	background: #ffffff;
+	border: none;
+	border-bottom: solid var(--npipng-gold) 4px;
+	box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.15);
+	transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+	display: flex;
+	flex-direction: column;
+	height: 420px;
+	width: 100%;
+}
+
+/* Splash Image Backgrounds */
+.card-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	opacity: 0.15; /* Lower opacity so Maroon/Gold text is readable over it */
+	transition: opacity 0.4s ease, transform 0.6s ease;
+	z-index: 1;
+}
+
+/* Gradient Overlay to ensure readability */
+.card-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to top, #ffffff 10%, rgba(255, 255, 255, 0.85) 60%, rgba(255, 255, 255, 0.4) 100%);
+	z-index: 2;
+}
+
+.card-content {
+	position: relative;
+	z-index: 3;
+	padding: 2.5rem 2rem;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	justify-content: flex-end;
+}
+
+.card-icon {
+	font-size: 1.75rem;
+	margin-bottom: 1rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.75rem;
+	border-radius: 0;
+	background: #f8f9fa;
+	border-bottom: solid var(--npipng-sea-blue) 2px;
+	width: fit-content;
+}
+
+.portal-card h2 {
+	font-size: 1.6rem;
+	font-weight: 700;
+	margin-bottom: 0.5rem;
+	letter-spacing: -0.02em;
+	color: var(--npipng-maroon);
+}
+
+.portal-card p {
+	color: #6c757d;
+	font-size: 0.95rem;
+	line-height: 1.6;
+	margin-bottom: 1.5rem;
+}
+
+.card-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 700;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	transition: gap 0.3s ease;
+}
+
+.card-btn svg {
+	transition: transform 0.3s ease;
+}
+
+/* Hover States */
+.portal-card:hover {
+	transform: translateY(-10px);
+	box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.25);
+}
+
+.portal-card:hover .card-bg {
+	opacity: 0.25;
+	transform: scale(1.06);
+}
+
+.portal-card:hover .card-btn {
+	gap: 1rem;
+}
+
+.portal-card:hover .card-btn svg {
+	transform: translateX(4px);
+}
+
+/* Portal-Specific Themes */
+.portal-card.acad:hover {
+	border-bottom-color: var(--npipng-maroon);
+}
+.portal-card.acad .card-btn { color: var(--npipng-maroon); }
+.portal-card.acad .card-icon { color: var(--npipng-maroon); }
+
+.portal-card.admin:hover {
+	border-bottom-color: var(--npipng-sea-blue);
+}
+.portal-card.admin .card-btn { color: var(--npipng-sea-blue); }
+.portal-card.admin .card-icon { color: var(--npipng-sea-blue); }
+
+.portal-card.super:hover {
+	border-bottom-color: var(--npipng-gold);
+}
+.portal-card.super .card-btn { color: var(--npipng-gold); }
+.portal-card.super .card-icon { color: var(--npipng-gold); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.page-footer {
+	margin-top: auto;
+	padding: 2rem 1rem;
+	text-align: center;
+	background-color: var(--npipng-sea-blue); /* Matches internal footer */
+	color: #ffffff;
+	font-size: 0.85rem;
+}

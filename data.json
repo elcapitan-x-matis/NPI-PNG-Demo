@@ -1,0 +1,42 @@
+{
+  "departments": [
+    {"deptID": 6, "deptCode": "APS", "deptName": "Department of Applied Science", "description": "Contrary to popular belief, Lorem Ipsum is not simply random text."},
+    {"deptID": 7, "deptCode": "ARBDCV", "deptName": "Department of Architecture, Building & Civil Engineering", "description": "Contrary to popular belief, Lorem Ipsum is not simply random text."},
+    {"deptID": 8, "deptCode": "BSSTD", "deptName": "Department of Business Studies", "description": "Contrary to popular belief, Lorem Ipsum is not simply random text."}
+  ],
+  "courses": [
+    {"courseID": 11, "courseCode": "APS26", "courseName": "Diploma in Applied Science", "duration": "2", "underDept": 6, "coverImg": "assets/images/course/default.jpg"},
+    {"courseID": 12, "courseCode": "ARD01", "courseName": "Diploma in Architectural Drafting", "duration": "2", "underDept": 7, "coverImg": "assets/images/course/default.jpg"},
+    {"courseID": 14, "courseCode": "CIV01", "courseName": "Diploma in Civil Engineering", "duration": "2", "underDept": 7, "coverImg": "assets/images/course/default.jpg"},
+    {"courseID": 15, "courseCode": "BSA21", "courseName": "Diploma In Business Studies Accounting", "duration": "2", "underDept": 8, "coverImg": "assets/images/course/default.jpg"}
+  ],
+  "units": [
+    {"unitID": 180, "unitCode": "DPAPS1001", "unitName": "ASC Unit 1001", "creditPoints": 200, "totalPoints": 100, "underCourse": 11, "lectAssigned": 21003},
+    {"unitID": 181, "unitCode": "DPAPS1002", "unitName": "ASC Unit 1002", "creditPoints": 200, "totalPoints": 100, "underCourse": 11, "lectAssigned": 21003},
+    {"unitID": 183, "unitCode": "DPAPS1004", "unitName": "ASC Unit 1004", "creditPoints": 200, "totalPoints": 100, "underCourse": 11, "lectAssigned": 21003}
+  ],
+  "students": [
+    {"studentID": 210001, "firstname": "Samuel", "middlename": "Veratau", "lastname": "Kekebogi", "gender": "Male", "email": "skekebogi@student.npipng.ac.pg", "courseTaken": 11, "yearLevel": 1, "GPA": "3.00", "scholarship": "HECAS", "residentStatus": "Residential", "profileImg": "assets/images/student/default.jpg"},
+    {"studentID": 210002, "firstname": "Sally", "middlename": "Jones", "lastname": "Blade", "gender": "Female", "email": "sblade@student.npipng.ac.pg", "courseTaken": 11, "yearLevel": 1, "GPA": "2.83", "scholarship": "AES", "residentStatus": "Residential", "profileImg": "assets/images/student/default.jpg"},
+    {"studentID": 210003, "firstname": "Sandy", "middlename": "Marley", "lastname": "Makis", "gender": "Female", "email": "smakis@student.npipng.ac.pg", "courseTaken": 11, "yearLevel": 1, "GPA": "3.17", "scholarship": "AES", "residentStatus": "Residential", "profileImg": "assets/images/student/default.jpg"}
+  ],
+  "staff": [
+    {"staffID": 21001, "firstname": "Faustina", "lastname": "Kepea", "email": "fkepea@npipng.com.pg", "position": "Head Registrar Officer", "roleCode": "REGISTRAR", "profileImg": "assets/images/staff/default.jpg"},
+    {"staffID": 21002, "firstname": "Henry", "lastname": "Monty", "email": "hmonty@college.com.pg", "position": "Male Student Dean", "roleCode": "SS", "profileImg": "assets/images/staff/default.jpg"},
+    {"staffID": 21003, "firstname": "John", "lastname": "Rambo", "email": "jrambo@college.com.pg", "position": "Lecturer", "roleCode": "INSTRUCTOR", "profileImg": "assets/images/staff/default.jpg"},
+    {"staffID": 21064, "firstname": "Rachel", "lastname": "Chu", "email": "rchu@college.com.pg", "position": "Academic Admin Officer", "roleCode": "ACAD", "profileImg": "assets/images/staff/default.jpg"}
+  ],
+  "admins": [
+    {"adminID": "adm65c241b87ae02c412", "firstname": "Cytrus", "lastname": "Kili", "username": "ckili@admin", "email": "ckili@ict.npipng.ac.pg"}
+  ],
+  "enrollments": [
+    {"enrollID": "enrol61325537b4baf", "studentID": 210001, "offerID": "180.1.1.1", "score": 75.14, "grade": "CR", "enrollStatus": 1},
+    {"enrollID": "enrol6132553a83895", "studentID": 210002, "offerID": "180.1.1.1", "score": 73.79, "grade": "UP", "enrollStatus": 1},
+    {"enrollID": "enrol613344667a08c", "studentID": 210003, "offerID": "180.1.1.1", "score": 79.85, "grade": "CR", "enrollStatus": 1}
+  ],
+  "activities": [
+    {"ID": 3, "title": "Quiz 1", "totalMarks": 35.00, "percentage": 10.00, "type": "Quiz", "unitID": 180},
+    {"ID": 4, "title": "Quiz 2", "totalMarks": 35.00, "percentage": 10.00, "type": "Quiz", "unitID": 180},
+    {"ID": 7, "title": "Examination", "totalMarks": 70.00, "percentage": 30.00, "type": "Examination", "unitID": 180}
+  ]
+}
