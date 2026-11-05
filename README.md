@@ -1,6 +1,6 @@
 # NPIPNG Learning, Academics and Student Management System
 
-![Home Page](https://assets/image/learning-portal-landing-page.png)
+![Home Page](./assets/image/learning-portal-landing-page.png)
 
 A comprehensive, role-based, static demonstration of the National Polytechnic Institute of Papua New Guinea (NPIPNG) academic and student management system. This project simulates a full-scale educational ERP (Enterprise Resource Planning) environment using purely front-end technologies.
 
