@@ -1,39 +1,48 @@
-// Simulated Authentication for Static Demo
 $(document).ready(function() {
-    // Check if user is logged in
-    const role = localStorage.getItem('npipng_role');
-    const userName = localStorage.getItem('npipng_name');
-
-    // If on a login page and already logged in, redirect to dashboard
-    if (window.location.pathname.includes('index.html') && !window.location.pathname.endsWith('npipng-demo/index.html')) {
-        if (role) {
-            window.location.href = 'dashboard.html';
-        }
-    }
-
+    
     // Handle Login Form Submission
     $('#loginForm').submit(function(e) {
         e.preventDefault();
         const user = $('#loguser').val();
         const pass = $('#logpassword').val();
         
-        // Mock Authentication Logic
+        // Mock Authentication Logic based on URL path
+        const path = window.location.pathname;
+
         if (user && pass) {
-            // For the demo, we just check keywords in the username
-            if (user.includes('admin')) {
+            if (path.includes('acad-portal')) {
+                // Academic Portal Login
+                if (user.includes('instructor')) {
+                    localStorage.setItem('npipng_role', 'INSTRUCTOR');
+                    localStorage.setItem('npipng_name', 'John Rambo');
+                    localStorage.setItem('npipng_id', '21003');
+                } else {
+                    // Default to Student
+                    localStorage.setItem('npipng_role', 'STUDENT');
+                    localStorage.setItem('npipng_name', 'Samuel Kekebogi');
+                    localStorage.setItem('npipng_id', '210001');
+                }
+                window.location.href = '../dashboard/index.html';
+
+            } else if (path.includes('admin-portal')) {
+                // Admin Portal Login
+                if (user.includes('acad')) {
+                    localStorage.setItem('npipng_role', 'ACAD');
+                    localStorage.setItem('npipng_name', 'Rachel Chu');
+                    localStorage.setItem('npipng_id', '21064');
+                } else {
+                    localStorage.setItem('npipng_role', 'REGISTRAR');
+                    localStorage.setItem('npipng_name', 'Faustina Kepea');
+                    localStorage.setItem('npipng_id', '21001');
+                }
+                window.location.href = '../dashboard/index.html';
+
+            } else if (path.includes('superuser-portal')) {
+                // Superuser Login
                 localStorage.setItem('npipng_role', 'SUPERUSER');
                 localStorage.setItem('npipng_name', 'Cytrus Kili');
-                window.location.href = '../superuser-portal/dashboard.html';
-            } else if (user.includes('registrar')) {
-                localStorage.setItem('npipng_role', 'REGISTRAR');
-                localStorage.setItem('npipng_name', 'Faustina Kepea');
-                window.location.href = '../admin-portal/dashboard.html';
-            } else {
-                // Default to student
-                localStorage.setItem('npipng_role', 'STUDENT');
-                localStorage.setItem('npipng_name', 'Samuel Kekebogi');
-                localStorage.setItem('npipng_id', '210001');
-                window.location.href = '../acad-portal/dashboard.html';
+                localStorage.setItem('npipng_id', 'adm65c241b87ae02c412');
+                window.location.href = '../dashboard/index.html';
             }
         } else {
             $('#loginAlertMessage').html('<span class="text-danger">Please enter credentials</span>');
@@ -44,11 +53,7 @@ $(document).ready(function() {
     $('#LogoutForm').submit(function(e) {
         e.preventDefault();
         localStorage.clear();
-        window.location.href = '../index.html';
+        // Redirect to root
+        window.location.href = '../../index.html';
     });
-
-    // Inject User Name into Nav Bar if exists
-    if (userName) {
-        $('.user-name-placeholder').text('Hi, ' + userName);
-    }
 });
