@@ -8,6 +8,9 @@
     <!-- Bootstrap 5 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,9 +20,103 @@
     <link rel="stylesheet" type="text/css" href="assets/css/cover.css">
 
     <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon">
+
+    <style>
+        /* Additional styles specific to the new sections */
+        .section-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 5rem 0;
+        }
+        
+        .info-section {
+            background: #ffffff;
+            color: #191919;
+            padding: 5rem 0;
+        }
+
+        .info-title {
+            font-family: "DM Serif Display", serif;
+            color: maroon;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .info-subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 0;
+            border-bottom: solid goldenrod 4px;
+            padding: 2rem;
+            height: 100%;
+            box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #5064fe;
+            margin-bottom: 1rem;
+        }
+
+        /* Architecture Diagram */
+        .arch-box {
+            border: 2px dashed #5064fe;
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+            background: #f0f4ff;
+            border-radius: 0;
+            margin-bottom: 1rem;
+        }
+        .arch-arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #daa520;
+            margin: 0.5rem 0;
+        }
+
+        /* Tech Stack Tags */
+        .tech-tag {
+            display: inline-block;
+            background: maroon;
+            color: white;
+            padding: 0.4rem 1rem;
+            margin: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 0;
+        }
+
+        /* Developer Card */
+        .dev-card {
+            background: #191919;
+            color: white;
+            padding: 2rem;
+            border-left: solid goldenrod 6px;
+            border-radius: 0;
+        }
+        .dev-card a {
+            color: goldenrod;
+            text-decoration: none;
+        }
+        .dev-card a:hover {
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
 
+    <!-- HEADER -->
     <header class="page-header">
         <div class="container">
             <div class="brand-title">NPIPNG</div>
@@ -30,6 +127,7 @@
         </div>
     </header>
 
+    <!-- PORTALS GRID -->
     <main class="container mb-5">
         <div class="row g-4 justify-content-center">
             
@@ -78,6 +176,143 @@
         </div>
     </main>
 
+    <!-- ABOUT SECTION -->
+    <div class="info-section">
+        <div class="container">
+            <h2 class="info-title">System Overview</h2>
+            <p class="info-subtitle">A fully-fledged institutional management platform built for the National Polytechnical Institute of Papua New Guinea.</p>
+
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <p class="lead text-center text-muted" style="line-height: 1.8;">
+                        The <strong>NPIPNG Learning & Academic Management System</strong> is a complete, role-based web application designed to digitize the operations of the institute. It consolidates three previously fragmented workflows into one unified ecosystem:
+                    </p>
+                    <div class="row text-center mt-4">
+                        <div class="col-md-4">
+                            <h4 style="color: maroon;">1. Teaching & Learning</h4>
+                            <p class="text-muted">Course delivery, assessments, submissions, and live GPA tracking.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 style="color: maroon;">2. Administration</h4>
+                            <p class="text-muted">Student registration, academic records, transcript generation, and certificates.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 style="color: maroon;">3. Accommodation</h4>
+                            <p class="text-muted">Dormitory management, room allocation, and student occupancy tracking.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- FEATURES SECTION -->
+    <div class="container">
+        <h2 class="info-title">Core Features</h2>
+        <p class="info-subtitle">Built to solve real institutional challenges at NPIPNG.</p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-shield-lock"></i></div>
+                    <h5 class="fw-bold">Role-Based Access Control</h5>
+                    <p class="text-muted">Strict separation between Students, Instructors, Registrars, Academic Admin, Student Services, and Superusers.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-calculator"></i></div>
+                    <h5 class="fw-bold">Dynamic GPA Engine</h5>
+                    <p class="text-muted">Real-time weighted grading calculations that automatically update a student's cumulative GPA and transcript.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-house-door"></i></div>
+                    <h5 class="fw-bold">Accommodation Manager</h5>
+                    <p class="text-muted">Gender-matched room allocation with live occupancy tracking to prevent overbooking.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-file-earmark-check"></i></div>
+                    <h5 class="fw-bold">Automated Transcripts</h5>
+                    <p class="text-muted">One-click generation of official academic transcripts with locked-in semester and cumulative GPAs.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-upload"></i></div>
+                    <h5 class="fw-bold">File Submissions</h5>
+                    <p class="text-muted">Students can upload assignments securely, while instructors grade them and provide feedback in real-time.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-window-sidebar"></i></div>
+                    <h5 class="fw-bold">Responsive UI</h5>
+                    <p class="text-muted">Built with a custom flat-design theme, optimized for both desktop and mobile devices.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ARCHITECTURE SECTION -->
+    <div class="container pb-5">
+        <h2 class="info-title">System Architecture</h2>
+        <p class="info-subtitle">Custom MVC Architecture with a JSON-Powered Demo deployment.</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="arch-box">1. Browser Request (HTML5, CSS3, Bootstrap 5)</div>
+                <div class="arch-arrow"><i class="bi bi-arrow-down-circle-fill"></i></div>
+                <div class="arch-box">2. Client-Side Routing (JavaScript / jQuery)</div>
+                <div class="arch-arrow"><i class="bi bi-arrow-down-circle-fill"></i></div>
+                <div class="arch-box">3. Data Layer (data.json mock database)</div>
+                <div class="arch-arrow"><i class="bi bi-arrow-down-circle-fill"></i></div>
+                <div class="arch-box">4. Dynamic DOM Rendering (Vanilla JS Templates)</div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <h5 class="mb-3">Technology Stack</h5>
+            <span class="tech-tag">PHP 8.1 (Original)</span>
+            <span class="tech-tag">Custom MVC</span>
+            <span class="tech-tag">MySQL / MariaDB</span>
+            <span class="tech-tag">HTML5</span>
+            <span class="tech-tag">CSS3</span>
+            <span class="tech-tag">Bootstrap 4 / 5</span>
+            <span class="tech-tag">JavaScript (ES6+)</span>
+            <span class="tech-tag">jQuery</span>
+            <span class="tech-tag">JSON</span>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- DEVELOPER META SECTION -->
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="dev-card text-center">
+                    <h4 class="text-primary mb-3">Project Meta</h4>
+                    <p class="mb-1"><strong>Project:</strong> NPIPNG Learning, Student & Academic Management System</p>
+                    <p class="mb-1"><strong>Type:</strong> Final Year Project (FYP)</p>
+                    <p class="mb-1"><strong>Developer:</strong> Cytrus John Dominic Kili</p>
+                    <p class="mb-1"><strong>Institution:</strong> Divine Word University (DWU), Madang</p>
+                    <p class="mb-1"><strong>Target Deployment:</strong> NPIPNG, Lae, Morobe Province</p>
+                    <hr style="border-color: rgba(255,255,255,0.1);">
+                    <p class="small mb-0">For more information, refer to the <a href="README.md">README.md</a> and <a href="LICENSE.md">LICENSE.md</a> files.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
     <footer class="page-footer">
         <div class="container">
             Copyright &copy; <span id="year"></span>, NPIPNG All Rights Reserved. Designed by Cytrus John Dominic Kili. <br>
@@ -86,7 +321,5 @@
     </footer>
 
     <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
-
-    <script src="assets/js/demo-banner.js"></script>
 </body>
 </html>
